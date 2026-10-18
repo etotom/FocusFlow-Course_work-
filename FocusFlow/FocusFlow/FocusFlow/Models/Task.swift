@@ -8,6 +8,7 @@ struct Task: Identifiable, Codable, Equatable {
     var category: Category
     var isCompleted: Bool
     var createdAt: Date
+    var dueDate: Date?
 
     init(
         id: UUID = UUID(),
@@ -16,7 +17,8 @@ struct Task: Identifiable, Codable, Equatable {
         priority: Priority = .medium,
         category: Category = .personal,
         isCompleted: Bool = false,
-        createdAt: Date = Date()
+        createdAt: Date = Date(),
+        dueDate: Date? = nil
     ) {
         self.id = id
         self.title = title
@@ -25,6 +27,18 @@ struct Task: Identifiable, Codable, Equatable {
         self.category = category
         self.isCompleted = isCompleted
         self.createdAt = createdAt
+        self.dueDate = dueDate
+    }
+
+    var isOverdue: Bool {
+        guard let due = dueDate, !isCompleted else { return false }
+        return due < Date()
+    }
+
+    var isDueSoon: Bool {
+        guard let due = dueDate, !isCompleted, !isOverdue else { return false }
+        let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
+        return due <= tomorrow
     }
 }
 

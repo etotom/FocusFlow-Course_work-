@@ -8,12 +8,15 @@ struct ContentView: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            // Контент с отступом под таббар
             Group {
-                if selectedTab == 0 {
+                switch selectedTab {
+                case 0:
                     TaskListView(viewModel: viewModel)
                         .transition(slideTransition)
-                } else {
+                case 1:
+                    FocusTimerView()
+                        .transition(slideTransition)
+                default:
                     StatsView(viewModel: viewModel)
                         .transition(slideTransition)
                 }
@@ -23,7 +26,6 @@ struct ContentView: View {
                 Color.clear.frame(height: 62)
             }
 
-            // Кастомный таббар
             customTabBar
         }
         .ignoresSafeArea(edges: .bottom)
@@ -37,10 +39,8 @@ struct ContentView: View {
     private var slideTransition: AnyTransition {
         let forward = selectedTab > prevTab
         return .asymmetric(
-            insertion: .move(edge: forward ? .trailing : .leading)
-                .combined(with: .opacity),
-            removal: .move(edge: forward ? .leading : .trailing)
-                .combined(with: .opacity)
+            insertion: .move(edge: forward ? .trailing : .leading).combined(with: .opacity),
+            removal:   .move(edge: forward ? .leading  : .trailing).combined(with: .opacity)
         )
     }
 
@@ -48,7 +48,6 @@ struct ContentView: View {
 
     private var customTabBar: some View {
         ZStack(alignment: .top) {
-            // Frosted background, уходит за нижний край экрана
             Rectangle()
                 .fill(.ultraThinMaterial)
                 .ignoresSafeArea(edges: .bottom)
@@ -56,26 +55,27 @@ struct ContentView: View {
             Divider()
 
             HStack(spacing: 0) {
-                tabItem(icon: "checklist", label: "Задачи", tag: 0)
-
+                tabItem(icon: "checklist",      label: "Задачи",     tag: 0)
                 Spacer()
-
-                // Центральная кнопка «+» — приподнята над баром
-                centerButton
-                    .offset(y: -18)
-
+                tabItem(icon: "timer",          label: "Таймер",     tag: 1)
                 Spacer()
-
-                tabItem(icon: "chart.bar.fill", label: "Статистика", tag: 1)
+                centerButton.offset(y: -18)
+                Spacer()
+                tabItem(icon: "chart.bar.fill", label: "Статистика", tag: 2)
             }
-            .padding(.horizontal, 36)
+            .padding(.horizontal, 20)
             .frame(height: 62)
         }
         .frame(height: 62)
     }
 
+    // MARK: - Center Add Button
+
     private var centerButton: some View {
-        Button { showAddTask = true } label: {
+        Button {
+            HapticManager.medium()
+            showAddTask = true
+        } label: {
             ZStack {
                 Circle()
                     .fill(
@@ -96,15 +96,16 @@ struct ContentView: View {
         .accessibilityIdentifier("addTaskButton")
     }
 
+    // MARK: - Tab Item
+
     @ViewBuilder
     private func tabItem(icon: String, label: String, tag: Int) -> some View {
         let active = selectedTab == tag
         Button {
             guard selectedTab != tag else { return }
             prevTab = selectedTab
-            withAnimation(.easeInOut(duration: 0.28)) {
-                selectedTab = tag
-            }
+            HapticManager.selection()
+            withAnimation(.easeInOut(duration: 0.28)) { selectedTab = tag }
         } label: {
             VStack(spacing: 3) {
                 Image(systemName: icon)
@@ -118,7 +119,7 @@ struct ContentView: View {
             .animation(.spring(response: 0.3, dampingFraction: 0.65), value: active)
         }
         .buttonStyle(.plain)
-        .frame(width: 80)
+        .frame(width: 64)
     }
 }
 
