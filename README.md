@@ -27,7 +27,7 @@ Author: **Begzoda Suhaili Suhrob**
 **Tasks**
 - Create and edit tasks: title, notes, priority (low / medium / high), category
   (work / personal / study / health) and an optional due date.
-- Mark tasks as done with an animated check; delete with a swipe or from the context menu.
+- Mark tasks as done with an animated check; delete from the context menu (long press on a task).
 - Overdue tasks are highlighted in red, tasks due within a day in orange.
 
 **Finding tasks**
@@ -59,7 +59,7 @@ contains **33 XCUITest UI tests** in six groups:
 
 | Group | Tests | What is checked |
 |---|:---:|---|
-| Functional | 10 | Adding tasks (title only, all fields, several tasks), toggling completion both ways, swipe-to-delete without affecting other tasks, the statistics tab and its update after adding/completing a task |
+| Functional | 10 | Adding tasks (title only, all fields, several tasks), toggling completion both ways, two swipe-to-delete tests (see the notes below), the statistics tab and its update after adding/completing a task |
 | Negative | 5 | Empty and whitespace-only titles keep the form open, Cancel adds nothing, special characters and very long titles are accepted |
 | Priorities and categories | 5 | Selecting high/low priority and work/health categories, switching priority from high to low |
 | Interface | 5 | Add button and tab bar are present, the form has its required elements, tab switching and repeated opening/closing of the form work without errors |
@@ -70,8 +70,17 @@ Notes:
 - Tests launch the app with the `--uitesting` argument: the app clears stored tasks and
   skips onboarding, so every test starts from a clean state.
 - Elements are located through `accessibilityIdentifier`s set in the views.
-- In the final practice report all 33 tests passed. The report also includes manual
-  profiling in Instruments (launch time about 1.2 s, memory about 48 MB).
+- Latest run (Xcode 27.1, iPhone 17 Pro simulator, iOS 26.4.1): 33 UI tests; 32 pass and
+  1 — the swipe-to-delete test (`testDeleteTask_swipeLeft_removesFromList`) — is marked as an
+  expected failure (`XCTExpectFailure`) because the task list is a `ScrollView` + `LazyVStack`,
+  not a `List`, and SwiftUI's `.swipeActions` only works on `List` rows: a swipe never shows the
+  Delete button. In the app a task is deleted from the context menu. For the same reason
+  `testDeleteTask_otherTasksRemainIntact` passes without deleting anything: it only checks that
+  the other task is still in the list after the swipe.
+- The result bundle of that run counts 35 tests (the 33 UI tests, the launch test and the
+  Swift Testing template): 34 passed, 0 failed, 1 expected failure.
+- The practice report also includes manual profiling in Instruments (launch time about
+  1.2 s, memory about 48 MB).
 - `FocusFlowUITestsLaunchTests.swift` contains Xcode's default launch-screenshot test;
   `FocusFlowTests` holds only the Swift Testing template (no unit tests yet).
 - Test configuration lives in `FocusFlow.xctestplan`.
@@ -86,7 +95,8 @@ Notes:
 - **Haptics and sound**: UIKit feedback generators and AudioToolbox system sounds
   (`Helpers/HapticManager.swift`).
 - **Tests**: XCUITest, Swift Testing template, Xcode test plan.
-- **Deployment target: iOS 26.5** (as set in the project).
+- **Deployment target: iOS 17.0** — the lowest version the code builds for unchanged
+  (`symbolEffect` and `onChange(of:initial:)` need iOS 17).
 
 ```
 FocusFlow/FocusFlow/
@@ -105,8 +115,9 @@ FocusFlow/FocusFlow/
 
 ## How to run
 
-Requirements: macOS with an Xcode version that includes the iOS 26.5 SDK or newer
-(the build was verified with Xcode 27.1).
+Requirements: macOS with Xcode 16 or newer (the project uses the Xcode 16 project format);
+the app runs on iOS 17.0 or later. Verified with Xcode 27.1 (iOS 27.1 SDK); the tests were run
+on an iOS 26.4.1 simulator.
 
 1. Clone the repository and open `FocusFlow/FocusFlow/FocusFlow.xcodeproj` in Xcode.
 2. Select the **FocusFlow** scheme and an iPhone simulator.
