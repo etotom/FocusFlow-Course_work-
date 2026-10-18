@@ -115,9 +115,11 @@ FocusFlow/FocusFlow/
 
 ## How to run
 
-Requirements: macOS with Xcode 16 or newer (the project uses the Xcode 16 project format);
-the app runs on iOS 17.0 or later. Verified with Xcode 27.1 (iOS 27.1 SDK); the tests were run
-on an iOS 26.4.1 simulator.
+Requirements:
+
+- Requires iOS 17.0+ (tested on iOS 26.4)
+- macOS with Xcode 16 or newer (the project uses the Xcode 16 project format); verified with
+  Xcode 27.1 (iOS 27.1 SDK)
 
 1. Clone the repository and open `FocusFlow/FocusFlow/FocusFlow.xcodeproj` in Xcode.
 2. Select the **FocusFlow** scheme and an iPhone simulator.
