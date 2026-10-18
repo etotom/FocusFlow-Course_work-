@@ -6,7 +6,10 @@ struct PulsingButton: View {
     @State private var isPulsing = false
 
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+            HapticManager.light()
+            action()
+        }) {
             Image(systemName: "plus")
                 .font(.title2.weight(.semibold))
                 .foregroundStyle(.white)
